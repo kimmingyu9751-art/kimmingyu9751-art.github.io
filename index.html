@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>BST CRUD Project</title>
   <style>
-    body { font-family: Arial; text-align: center; margin-top: 30px; }
-    input, button { padding: 8px; margin: 5px; }
-    pre { text-align: left; display: inline-block; }
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin-top: 30px;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+    }
+    pre {
+      text-align: left;
+      display: inline-block;
+      background: #f4f4f4;
+      padding: 10px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Binary Search Tree (BST)</h1>
+<h1>Binary Search Tree (BST)</h1>
 
-  <input type="number" id="value" placeholder="Enter number">
-  <button onclick="insert()">Insert</button>
-  <button onclick="search()">Search</button>
-  <button onclick="remove()">Delete</button>
+<input type="number" id="value" placeholder="Enter number">
+<button onclick="addNode()">Insert</button>
+<button onclick="findNode()">Search</button>
+<button onclick="deleteNode()">Delete</button>
 
-  <h3>Tree Structure:</h3>
-  <pre id="output"></pre>
+<h3>Tree Structure</h3>
+<pre id="output"></pre>
 
 <script>
 class Node {
@@ -39,7 +52,7 @@ class BST {
   }
 
   _insert(node, value) {
-    if (node == null) return new Node(value);
+    if (node === null) return new Node(value);
     if (value < node.value)
       node.left = this._insert(node.left, value);
     else if (value > node.value)
@@ -52,11 +65,12 @@ class BST {
   }
 
   _search(node, value) {
-    if (!node) return false;
+    if (node === null) return false;
     if (value === node.value) return true;
-    return value < node.value
-      ? this._search(node.left, value)
-      : this._search(node.right, value);
+    if (value < node.value)
+      return this._search(node.left, value);
+    else
+      return this._search(node.right, value);
   }
 
   delete(value) {
@@ -64,19 +78,24 @@ class BST {
   }
 
   _delete(node, value) {
-    if (!node) return null;
+    if (node === null) return null;
 
     if (value < node.value)
       node.left = this._delete(node.left, value);
     else if (value > node.value)
       node.right = this._delete(node.right, value);
     else {
-      if (!node.left) return node.right;
-      if (!node.right) return node.left;
+      // ไม่มีลูก
+      if (node.left === null && node.right === null) return null;
 
-      let minLargerNode = this._findMin(node.right);
-      node.value = minLargerNode.value;
-      node.right = this._delete(node.right, minLargerNode.value);
+      // ลูกด้านเดียว
+      if (node.left === null) return node.right;
+      if (node.right === null) return node.left;
+
+      // มีลูกสองด้าน
+      let minNode = this._findMin(node.right);
+      node.value = minNode.value;
+      node.right = this._delete(node.right, minNode.value);
     }
     return node;
   }
@@ -86,36 +105,39 @@ class BST {
     return node;
   }
 
-  display(node = this.root, level = 0) {
-    if (!node) return "";
+  display(node = this.root, space = 0) {
+    if (node === null) return "";
     let result = "";
-    result += this.display(node.right, level + 1);
-    result += "   ".repeat(level) + node.value + "\n";
-    result += this.display(node.left, level + 1);
+    result += this.display(node.right, space + 4);
+    result += " ".repeat(space) + node.value + "\n";
+    result += this.display(node.left, space + 4);
     return result;
   }
 }
 
 const tree = new BST();
 
-function insert() {
-  let value = parseInt(document.getElementById("value").value);
+function addNode() {
+  const value = parseInt(document.getElementById("value").value);
+  if (isNaN(value)) return alert("Enter a number first");
   tree.insert(value);
-  showTree();
+  updateView();
 }
 
-function search() {
-  let value = parseInt(document.getElementById("value").value);
+function findNode() {
+  const value = parseInt(document.getElementById("value").value);
+  if (isNaN(value)) return alert("Enter a number first");
   alert(tree.search(value) ? "Found!" : "Not Found!");
 }
 
-function remove() {
-  let value = parseInt(document.getElementById("value").value);
+function deleteNode() {
+  const value = parseInt(document.getElementById("value").value);
+  if (isNaN(value)) return alert("Enter a number first");
   tree.delete(value);
-  showTree();
+  updateView();
 }
 
-function showTree() {
+function updateView() {
   document.getElementById("output").textContent = tree.display();
 }
 </script>
